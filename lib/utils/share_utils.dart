@@ -1,44 +1,50 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SharedPreferencesDataUtils{
+class SharedPreferencesDataUtils {
 
+  static SharedPreferences sharedPreferences;
+  static SharedPreferencesDataUtils sharedPreferencesDataUtils;
 
-  static SharedPreferencesDataUtils _sharedPreferencesDataUtils;
-
-  static SharedPreferencesDataUtils getInstance(){
-    if(_sharedPreferencesDataUtils == null){
-      _sharedPreferencesDataUtils = SharedPreferencesDataUtils();
-    }
-    return _sharedPreferencesDataUtils;
+  static Future<bool> init() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    return true;
   }
 
+  static SharedPreferencesDataUtils getInstace(){
+    if(null == sharedPreferencesDataUtils){
+      sharedPreferencesDataUtils = SharedPreferencesDataUtils();
+    }
+    return sharedPreferencesDataUtils;
+  }
 
-  Future<String> getString(key) async{
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  int getInt(key) {
+    var value = sharedPreferences.getInt(key);
+    return value;
+  }
+
+  Future<int> setInt(key, value) {
+    sharedPreferences.setInt(key, value);
+  }
+
+  String getString(key) {
     var string = sharedPreferences.getString(key);
     return string;
   }
 
-  Future<String> setString(key,value) async{
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.setString(key,value);
+  Future<String> setString(key, value) {
+    sharedPreferences.setString(key, value);
   }
 
-
-  Future<bool> getbool(key) async{
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  bool getbool(key) {
     return sharedPreferences.getBool(key);
   }
 
-  Future<bool> setbool(key,value) async{
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.setBool(key,value);
+  Future<bool> setbool(key, value) {
+    sharedPreferences.setBool(key, value);
   }
 
   // 清除数据
-  Future deleteInfos(key) async{
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    sp.remove(key);
+  Future deleteInfos(key) {
+    sharedPreferences.remove(key);
   }
-
 }

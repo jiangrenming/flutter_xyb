@@ -152,4 +152,7 @@ class AndroidUtils {
     return fontSize * _screenWidth / _designW;
   }
 
+
+
+
 }

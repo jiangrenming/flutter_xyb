@@ -49,6 +49,7 @@ class ApiService{
         HttpCallBack errorCallback
       })async{
     try{
+      // ignore: unrelated_type_equality_checks
       if(NetWorkCheck.isNetWorkAvailable() != 0){
         Response response;
         if(method == HttpMethod.GET){
@@ -66,15 +67,15 @@ class ApiService{
         }
         if(response.statusCode == 200){
           if (response.data['resultCode'] == "000") {
-            _httpSuccess<T, G>(response.data, sucessCallback);
+            _httpSuccess<T, G>(response.data, sucessCallback);  //代表返回业务成功的code
           } else {
-            _httpSpecial(response.data, reLoginCallBack);
+            _httpSpecial(response.data, reLoginCallBack);  //代表返回业务错误的code
           }
         }else{
-          _httpError(response.statusMessage, response.statusCode.toString(),errorCallback);
+          _httpError(response.statusMessage, response.statusCode.toString(),errorCallback);   //代表返回系统错误的code
         }
       }else{
-        _httpError( "暂无网络", ErrorException.NET_NONE,errorCallback);
+        _httpError( "暂无网络", ErrorException.NET_NONE,errorCallback);  //代表返回无网络可用
       }
     }catch(e){
       _httpError(e.toString(),"1000" ,errorCallback);
@@ -101,7 +102,7 @@ class ApiService{
   _httpSpecial(Map<String, dynamic> response, HttpCallBack reLoginCallBack) {
     ///可以针对不同的Flag 进行处理同一处理
     if (reLoginCallBack != null) {
-      reLoginCallBack(response);
+        reLoginCallBack(response);
     } else {
       switch (response['resultCode']) {
         case "401":

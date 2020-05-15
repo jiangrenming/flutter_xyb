@@ -5,20 +5,23 @@ import 'package:flutter_xyb/constants/contants.dart';
 
 class ResponseWrapper extends InterceptorsWrapper{
 
-  String token;
 
-  @override
+ /* @override
    onRequest(RequestOptions options) {
     Map<String, String> headers = new Map();
     headers["clientType"] = "Android";
-    SharedPreferencesDataUtils.getInstance().getString(Constans.TOKEN).then((String t) =>{
-      token = t
-    });
+
+    String token  =  SharedPreferencesDataUtils.getInstace().getString(Constans.TOKEN);
     if(token != null){
+      print("token=" + token);
       headers["Authorization"] = token;
+    }else{
+      headers["Authorization"] = "";
     }
-    headers["Authorization"] = "";
     options.headers = headers;
     return options;
-  }
+  }*/
+
+
+
 }

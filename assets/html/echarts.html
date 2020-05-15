@@ -1,0 +1,199 @@
+<!DOCTYPE html5>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>绩效</title>
+    <meta charset="utf-8"> <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no,email=no" name="format-detection">
+    <script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.4/??flexible_css.js,flexible.js"></script>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        body{
+            width: 100vw;
+            min-height: 100vh;
+            background-color: #3245eb;
+        }
+        .circular{
+            width: 100%;
+            height: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .circular-chart{
+            width: 4.26rem;
+            height: 4.26rem;
+            border-radius: 50%;
+            z-index: 99;
+            padding-top: 20px;
+        }
+        .circular-chart img{
+            width: 4.26rem;
+            height: 4.26rem;
+            z-index: 99;
+        }
+        .circular-chart-info{
+            width: 4.26rem;
+            height: 4.26rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color:rgba(255,255,255,1);
+            position: absolute;
+        }
+        .circular-chart-info .info-num{
+            font-size: 0.83rem;;
+            font-family:PingFang SC;
+            font-weight:bold;
+        }
+        .circular-chart-info .info-ponsen{
+            font-size:0.39rem;
+            font-family:PingFang SC;
+            font-weight:500;
+        }
+        .circular-chart-info .info-date{
+            font-size:0.33rem;
+            font-family:PingFang SC;
+            font-weight:500;
+        }
+        .echarts{
+            width: 9.07rem;
+            min-height: 7.96rem;
+            margin: 0 auto;
+        }
+        .echarts .echarts-name{
+            font-size:0.44rem;
+            font-family:PingFang SC;
+            font-weight:bold;
+            color:rgba(255,255,255,1);
+            margin-top: 0.46rem;
+        }
+        .echarts .echarts-content{
+            width:9.07rem;
+            height:6.94rem;
+            background-color:rgba(255,255,255,0.15);
+            border-radius:0.185rem;
+            margin-top: 0.46rem;
+            position: relative;
+        }
+        .echarts-content .echarts-content-title{
+            display: flex;
+            align-items: center;
+            font-size:0.36rem;
+            font-family:PingFang SC;
+            font-weight:500;
+            color:#ffffff;
+            position: absolute;
+            top: 0.185rem;
+            right: 0.925rem;
+        }
+        .echarts-content .echarts-content-title .echarts-content-title-icon{
+            width: 0.22rem;
+            height: 0.22rem;
+            margin-right: 0.194rem;
+            background-color: #ffffff;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="circular">
+        <div class="circular-chart" id="circularchat" style="width: 4.26rem; height: 4.26rem;">
+            <img id="circularDeg" src="./assets/bgimg.png" />
+        </div>
+        <div class="circular-chart-info">
+            <span id="numds" class="info-num">0</span>
+            <span class="info-ponsen">累计接诊人数</span>
+            <span class="info-date">近5日</span>
+        </div>
+    </div>
+    <div class="echarts">
+        <div class="echarts-name">接诊人次</div>
+        <div class="echarts-content">
+            <div class="echarts-content-title"><div class="echarts-content-title-icon"></div>接诊人数</div>
+            <div id="echartsa" style="width: 9.07rem; height: 6.48rem; padding-top: 0.46rem;"></div>
+        </div>
+    </div>
+    <div class="echarts" style="padding-bottom: 1.85rem;">
+        <div class="echarts-name">处方单数</div>
+        <div class="echarts-content">
+            <div class="echarts-content-title"><div class="echarts-content-title-icon"></div>处方单数</div>
+            <div id="echartsb" style="width: 9.07rem; height: 6.48rem; padding-top: 0.46rem;"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts-all-3.js"></script>
+    <script type="text/javascript"  src="assets/html/js/echarts.min.js"></script>
+    <script type="text/javascript">
+        // 获取Android传过来的参数参数
+
+         var nums = 0;
+        var degs = 0;
+        var chartax = [];
+        var chartas = [];
+        var chartbx = [];
+        var chartbs = [];
+        function andData(json) {
+           var jsonData = json;
+           var objStr= JSON.stringify(jsonData);
+            console.log("json:--->"+objStr)
+            chartax = jsonData.jzDate
+            chartas = jsonData.jzCount
+            chartbx = jsonData.cfDate
+            chartbs = jsonData.cfCount
+            nums = jsonData.allCount
+            degs = jsonData.degs
+            console.log("json1:--->"+chartax)
+            console.log("json2:--->"+chartas)
+            useData();
+        }
+        
+        function useData() {
+            var numbf = document.getElementById('numds');
+            numbf.innerHTML = nums
+
+            var imgDeg = document.getElementById('circularDeg');
+            imgDeg.style.cssText = 'transform: rotate(' + degs + 'deg); transition: 1s;';
+
+            var myEchartsa = echarts.init(document.getElementById('echartsa'));
+            optiona = {
+                color: ['#ffffff'],
+                xAxis: {
+                    type: 'category',
+                    data: chartax
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    data: chartas,
+                    type: 'bar'
+                }]
+            };
+            myEchartsa.setOption(optiona);
+
+            var myEchartsb = echarts.init(document.getElementById('echartsb'));
+            optionb = {
+                color: ['#ffffff'],
+                xAxis: {
+                    type: 'category',
+                    data: chartbx
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    data: chartbs,
+                    type: 'bar'
+                }]
+            };
+            myEchartsb.setOption(optionb);
+        }
+        
+    </script>
+  </body>
+</html>

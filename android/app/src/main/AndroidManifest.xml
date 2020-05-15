@@ -23,6 +23,8 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="乡医宝"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="android.notch_support" android:value="true"/>
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
