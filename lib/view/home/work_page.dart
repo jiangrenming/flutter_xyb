@@ -6,11 +6,13 @@ import 'package:flutter_xyb/widgets/home_top.dart';
 import 'package:flutter_xyb/http/dio_net.dart';
 import 'package:flutter_xyb/module/work_team_bean_entity.dart';
 import 'package:flutter_xyb/constants/contants.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
-import 'package:flutter_xyb/utils/refresh_util.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_xyb/view/home/emplomy/jx_manager.dart';
 import 'package:flutter_xyb/utils/share_utils.dart';
 import 'package:flutter_xyb/page_manager/load_state.dart';
+import 'package:flutter_xyb/utils/refresh_helper.dart';
+import 'package:flutter_xyb/router/page_routes.dart';
+
 //工作界面
 class WorkPages extends StatefulWidget {
   @override
@@ -28,6 +30,9 @@ class _WorkPagesState extends State<WorkPages> {
   List<Widget> _itemList = List();
 
   LoadState loadState ;
+
+
+  RefreshController _refreshController =  RefreshController(initialRefresh: false);
   @override
   void initState() {
     super.initState();
@@ -39,7 +44,7 @@ class _WorkPagesState extends State<WorkPages> {
   Widget getItemsWidget(WorkItemBean itemBean, BuildContext context) {
     if (itemBean.type == 0) {
       return Container(
-        color: Colors.blueGrey,
+ //       color: Colors.blueGrey,
         width: MediaQuery.of(context).size.width,
         height: 90.0,
         margin: EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 5.0),
@@ -49,7 +54,7 @@ class _WorkPagesState extends State<WorkPages> {
           child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              color: Colors.white,
+        //      color: Colors.white,
               child: ListView.builder(
                 itemBuilder: (context, index) {
                   return Container(
@@ -66,15 +71,14 @@ class _WorkPagesState extends State<WorkPages> {
                         SizedBox(height: 2.0),
                         Expanded(
                           child: Text(itemBean.itemBean[index].itemNames,
-                              style: TextStyle(
-                                  color: Colors.black, fontSize: 13.0)),
+                              style: TextStyle(fontSize: 13.0)),
                           flex: 1,
                         )
                       ],
                     ),
                   );
                 },
-                itemCount: itemBean.itemBean.length,
+                itemCount: itemBean.itemBean.length ?? 0,
                 physics: new NeverScrollableScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 shrinkWrap: true,
@@ -91,7 +95,7 @@ class _WorkPagesState extends State<WorkPages> {
                 alignment: Alignment(-1.0, 0.0),
                 child: Text(
                   itemBean.title,
-                  style: TextStyle(color: Colors.black, fontSize: 16.0),
+                  style: TextStyle( fontSize: 16.0),
                   textAlign: TextAlign.start,
                 ),
               ),
@@ -123,15 +127,14 @@ class _WorkPagesState extends State<WorkPages> {
                         SizedBox(height: 2.0),
                         Expanded(
                           child: Text(itemBean.itemBean[index].itemNames,
-                              style: TextStyle(
-                                  color: Colors.black, fontSize: 13.0)),
+                              style: TextStyle(fontSize: 13.0)),
                           flex: 1,
                         )
                       ],
                     )),
                   );
                 },
-                itemCount: itemBean.itemBean.length,
+                itemCount: itemBean.itemBean.length ?? 0,
               ),
             ],
           ));
@@ -145,6 +148,7 @@ class _WorkPagesState extends State<WorkPages> {
       return getItemsWidget(item, context);
     }).toList();
 
+
     return SafeArea (
       child: LoadStateLayout(
         state: loadState,
@@ -156,27 +160,50 @@ class _WorkPagesState extends State<WorkPages> {
             children: <Widget>[
               HomeTopWidgets(data: _workTeamBeanLevel),
               Expanded(
-                child: EasyRefresh.custom(
-                    shrinkWrap:true,
-                    header: RefreshUtils.defaultHeader(),
-                    onRefresh: () async{
-                      //TodO()刷新数据操作
-                    },
-                    slivers: <Widget>[
-                      SliverToBoxAdapter(
-                          child: Column(
-                            children: <Widget>[
-                              ListPages(),
-                              //3.三大类
-                              ListView(
-                                children: _itemList,
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
+                child: RefreshConfiguration.copyAncestor(
+                    context: context,
+                  // 下拉触发二楼距离
+                  twiceTriggerDistance: 150.0 - 15,
+                  //最大下拉距离,android默认为0,这里为了触发二楼
+                  maxOverScrollExtent: 150.0,
+                  headerTriggerDistance: 80 + MediaQuery.of(context).padding.top / 3,
+                    child: SmartRefresher(
+                      controller: _refreshController,
+                      header: HomeRefreshHeader() ,
+                      footer: RefresherFooter(),
+                      enableTwoLevel: true,
+                      onTwoLevel: () async {
+                        //二层的界面
+                        await Navigator.of(context)
+                            .pushNamed(PageName.two_floor.toString());
+                        await Future.delayed(Duration(milliseconds: 1000));
+                        _refreshController.twoLevelComplete();
+                      },
+                      onRefresh: () async {
+                         getChooseData();
+                        await Future.delayed(Duration(milliseconds: 1000));
+                         _refreshController.refreshCompleted();
+                         _refreshController.loadComplete();
+                      },
+                      child:CustomScrollView(
+                        shrinkWrap: true,
+                        slivers: <Widget>[
+                          SliverToBoxAdapter(
+                              child: Column(
+                                children: <Widget>[
+                                  ListPages(),
+                                  //3.三大类
+                                  ListView(
+                                    children: _itemList,
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                  )
+                                ],
                               )
-                            ],
                           )
-                      )
-                    ]
+                        ],
+                      ) ,
+                    ),
                 ),
               )
             ],
@@ -192,7 +219,7 @@ class _WorkPagesState extends State<WorkPages> {
     DioApi.getInstance().post<HttpResponseEntity,WorkTeamBeanEntity>
       ("/home/index",params: params,
           sucessCallback: (response){
-            _workTeamBeanEntity = response;
+            _workTeamBeanEntity =  response;
             setState(() {
               loadState = LoadState.State_Success;
               if(_workTeamBeanEntity != null )

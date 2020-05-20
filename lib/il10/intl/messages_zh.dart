@@ -86,6 +86,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "mypaints" : MessageLookupByLibrary.simpleMessage("我的患者"),
     "myservice" : MessageLookupByLibrary.simpleMessage("我的客服"),
     "myadvice" : MessageLookupByLibrary.simpleMessage("意见反馈"),
-
+    "myteam" : MessageLookupByLibrary.simpleMessage("我的团队"),
   };
 }

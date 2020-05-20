@@ -3,6 +3,8 @@ import 'package:flutter_xyb/module/work_team_bean_entity.dart';
 import 'package:flutter_xyb/utils/share_utils.dart';
 import 'package:flutter_xyb/constants/contants.dart';
 import 'dart:convert';
+import 'package:flutter_xyb/provider/view_model/team_module.dart';
+
 class HomeTopWidgets extends StatefulWidget {
   final List<WorkTeamBeanLevel> data;
 
@@ -26,9 +28,7 @@ class _HomeTopWidgetsState extends State<HomeTopWidgets> {
       int role = SharedPreferencesDataUtils.getInstace().getInt(Constans.ROLEID);
       for (int i = 0; i < widget.data.length; i++) {
         if (role == widget.data[i].roleId) {
-          SharedPreferencesDataUtils.getInstace().setInt(Constans.TEAM_TYPE, widget.data[i].levelId);//类型，1:省代，2:市代，3:县代，4:乡代，5:诊所
-          SharedPreferencesDataUtils.getInstace().setInt(Constans.ROLEID, widget.data[i].roleId);
-          SharedPreferencesDataUtils.getInstace().setString(Constans.TEAM, jsonEncode(widget.data[i]));
+          TeamModule().saveTeam( widget.data[i]);
           if (widget.data[i].roleId == 2) {
             words = "内勤";
           } else if (widget.data[i].roleId == 3) {
@@ -56,7 +56,7 @@ class _HomeTopWidgetsState extends State<HomeTopWidgets> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 50.0,
-      color: Colors.white12,
+ //     color: Colors.white12,
       margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
       child: Row(
         children: <Widget>[

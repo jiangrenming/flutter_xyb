@@ -84,5 +84,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "mypaints" : MessageLookupByLibrary.simpleMessage("MyPaints"),
     "myservice" : MessageLookupByLibrary.simpleMessage("MyService"),
     "myadvice" : MessageLookupByLibrary.simpleMessage("MyAdvice"),
+    "myteam" : MessageLookupByLibrary.simpleMessage("MyTeam"),
   };
 }

@@ -13,16 +13,21 @@ class LoginModule extends ChangeNotifier{
 
 
   bool get hasUser => _loginEntity != null;
-  LoginEntity get () => _loginEntity;
+  LoginEntity get () => _loginEntity == null  ? LoginEntity() : _loginEntity;
 
   LoginModule() {
-    var userMap = json.decode(SharedPreferencesDataUtils.getInstace().getString(kUser));
+    var userMap ;
+    String user  = SharedPreferencesDataUtils.getInstace().getString(kUser);
+    if(user != null){
+       userMap = json.decode(SharedPreferencesDataUtils.getInstace().getString(kUser));
+    }
     _loginEntity = userMap != null ? LoginEntity.fromJson(userMap) : null;
   }
 
   saveUser(LoginEntity user) {
     _loginEntity = user;
     notifyListeners();
+    print("存储是否成功");
     SharedPreferencesDataUtils.getInstace().setString(kUser, json.encode(user));
   }
 

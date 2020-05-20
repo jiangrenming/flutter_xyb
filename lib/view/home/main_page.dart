@@ -38,7 +38,7 @@ class _MainPagesState extends State<MainPages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 248, 248, 248),
+   //   backgroundColor: Color.fromARGB(255, 248, 248, 248),
       body: IndexedStack(
         index: _currentIndex,
         children: pages,

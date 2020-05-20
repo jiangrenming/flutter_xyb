@@ -11,7 +11,7 @@ import 'package:flutter_xyb/provider/view_model/login_module.dart';
 import 'package:flutter_xyb/widgets/bottom_clipper.dart';
 import 'package:flutter_xyb/constants/contants.dart';
 import 'package:flutter_xyb/provider/view_model/team_module.dart';
-
+import 'package:flutter_xyb/router/page_routes.dart';
 //个人中心
 /**
  * AutomaticKeepAliveClientMixin 相当于切换tab 不重新调用initState，从而保持之前的状态，不耗内存，只有当wisget是StatefulWidget时才可用
@@ -44,6 +44,7 @@ class _UserPageState extends State<PersonPages>
             flexibleSpace: UserHeaderWidget(),
             pinned: false,
           ),
+          SearchTeam(),
           UserListWidget(),
         ],
       ),
@@ -52,6 +53,41 @@ class _UserPageState extends State<PersonPages>
 
   @override
   bool get wantKeepAlive => true;
+}
+
+/**
+ * 我的团队布局
+ */
+class SearchTeam extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+     return ProviderWidget2<LoginModule,TeamModule>(
+       model1: LoginModule(),
+       model2: TeamModule(),
+       builder: (ctx,module1,module2,child){
+         return ListTileTheme(
+           contentPadding: const EdgeInsets.symmetric(horizontal: 30),
+           child:  SliverList(
+               delegate: SliverChildListDelegate([
+                 ListTile(
+                   title: Text(S.of(context).myteam,style: TextStyle(fontSize: 18.0),),
+                 ),
+                 ListTile(
+                   title: Text((module1.hasUser && module1.get().roleId == 0) ? "我的团队或诊所" :
+                   ( module1.get().roleId != 0 && module2.get().levelId != 5) ? "我的团队":"我的诊所",style: TextStyle(fontSize: 15.0),),
+                 ),
+                 Offstage(
+                   offstage:(module1.hasUser && module1.get().roleId == 0),
+                   child: ListTile(
+                       title: Text((module2.get().roleId != 0 && module2.get().levelId != 5) ? "查看我的团队":"查看我的诊所",style: TextStyle(fontSize: 12.0),),
+                   ),
+                 )
+               ])
+           ),
+         );
+       },
+     );
+  }
 }
 
 /**
@@ -65,7 +101,8 @@ class UserHeaderWidget extends StatelessWidget {
       child: Container(
         color: Theme.of(context).primaryColor.withAlpha(200),
         padding: EdgeInsets.only(top: 10),
-        child: Consumer<LoginModule>(
+        child: ProviderWidget(
+          model: LoginModule(),
           builder: (ctx, module, child) {
             return InkWell(
               onTap: () {
@@ -79,7 +116,6 @@ class UserHeaderWidget extends StatelessWidget {
                     child: Hero(
                         tag: "loginLogo",
                         child: ClipOval(
-                          //child: module.hasUser ？Image.network(module.get().imageUrl) :,
                           child: module.hasUser
                               ? Image.network(module.get().imageUrl,
                                   fit: BoxFit.cover,
@@ -103,6 +139,8 @@ class UserHeaderWidget extends StatelessWidget {
                     height: 20,
                   ),
                   Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Text(
                           module.hasUser
@@ -142,12 +180,12 @@ class UserListWidget extends StatelessWidget {
           child: SliverList(
             delegate: SliverChildListDelegate([
               Offstage(
-                offstage: !(module.hasTeam &&
+                offstage: (module.hasTeam &&
                     (module.get().roleId == 0 || module.get().levelId != 5)),
                 child: ListTile(
                   title: Text(S.of(context).myauthorization),
                   leading:
-                      Image.asset(Constans.ASSETS_IMG + "icon_my_auth.png"),
+                      Image.asset(Constans.ASSETS_IMG + "icon_my_auth.png",width: 20.0,height: 20.0,fit: BoxFit.cover,color: iconColor),
                   trailing: Icon(Icons.chevron_right),
                   onTap: () {
                     //ToDo()进入我的授权界面
@@ -159,7 +197,7 @@ class UserListWidget extends StatelessWidget {
                     (module.get().roleId == 0 || module.get().levelId == 5)),
                 child: ListTile(
                   title: Text(S.of(context).mypaints),
-                  leading: Image.asset(Constans.ASSETS_IMG + "icon_my_hz.png"),
+                  leading: Image.asset(Constans.ASSETS_IMG + "icon_my_hz.png",width: 20.0,height: 20.0,fit: BoxFit.cover,color: iconColor),
                   trailing: Icon(Icons.chevron_right),
                   onTap: () {
                     //ToDo()进入我的患者界面
@@ -169,7 +207,7 @@ class UserListWidget extends StatelessWidget {
               ListTile(
                 title: Text(S.of(context).myservice),
                 leading:
-                    Image.asset(Constans.ASSETS_IMG + "icon_my_customer.png"),
+                    Image.asset(Constans.ASSETS_IMG + "icon_my_customer.png",width: 20.0,height: 20.0,fit: BoxFit.cover,color: iconColor),
                 trailing: Icon(Icons.chevron_right),
                 onTap: () {
                   //ToDo()进入我的客服
@@ -178,7 +216,7 @@ class UserListWidget extends StatelessWidget {
               ListTile(
                 title: Text(S.of(context).myadvice),
                 leading:
-                    Image.asset(Constans.ASSETS_IMG + "icon_my_feed_back.png"),
+                    Image.asset(Constans.ASSETS_IMG + "icon_my_feed_back.png",width: 20.0,height: 20.0,fit: BoxFit.cover,color: iconColor),
                 trailing: Icon(Icons.chevron_right),
                 onTap: () {
                   //ToDo()进入意见反馈
@@ -211,6 +249,7 @@ class UserListWidget extends StatelessWidget {
                 title: Text(S.of(context).setting),
                 onTap: () {
                   //ToDo()进入设置界面
+                  Navigator.of(context).pushNamed(PageName.setting.toString());
                 },
                 leading: Icon(
                   Icons.settings,
@@ -264,8 +303,9 @@ class SettingThemeWidget extends StatelessWidget {
                   .map((color) => Material(
                         color: color,
                         child: InkWell(
-                          onTap: (){
-                            var model = Provider.of<ThemeModel>(context,listen: false);
+                          onTap: () {
+                            var model =
+                                Provider.of<ThemeModel>(context, listen: false);
                             model.switchTheme(color: color);
                           },
                           child: Container(
@@ -277,16 +317,16 @@ class SettingThemeWidget extends StatelessWidget {
                   .toList(),
               Material(
                 child: InkWell(
-                    onTap: () {
-                      var model = Provider.of<ThemeModel>(context,listen: false);
-                      var brightness = Theme.of(context).brightness;
-                      model.switchRandomTheme(brightness: brightness);
-                    },
+                  onTap: () {
+                    var model = Provider.of<ThemeModel>(context, listen: false);
+                    var brightness = Theme.of(context).brightness;
+                    model.switchRandomTheme(brightness: brightness);
+                  },
                   child: Container(
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                         border:
-                        Border.all(color: Theme.of(context).accentColor)),
+                            Border.all(color: Theme.of(context).accentColor)),
                     width: 40,
                     height: 40,
                     child: Text(

@@ -14,11 +14,14 @@ import 'package:provider/provider.dart';
 import 'package:flutter_xyb/provider/view_model/theme_module.dart';
 import 'package:flutter_xyb/provider/view_model/locale_model.dart';
 import 'package:flutter_xyb/provider/provider_manager.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 //开发环境的入口
 void main() {
   Config.env = Env.DEV;
   AppConfig.apiBaseUrl = Config.apiHost;
+  Provider.debugCheckInvalidValueType = null;
   WidgetsFlutterBinding.ensureInitialized();
   realRunApp();
 }
@@ -51,10 +54,11 @@ class _MyAppStatue extends State<MyApp> {
     if (Platform.isAndroid) {
       //设置Android头部的导航栏透明
       SystemUiOverlayStyle style = SystemUiOverlayStyle(
-          statusBarColor: Colors.blue,
-          statusBarIconBrightness: Brightness.light
-      );
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: Brightness.light);
+
       SystemChrome.setSystemUIOverlayStyle(style);
+
     } else if (Platform.isIOS) {
       //手机的状态栏默认为打开的
       //判断是否为苹果手机。如果是，并且padding top不为0即为x系列
@@ -87,21 +91,30 @@ class _MyAppStatue extends State<MyApp> {
            providers: providers,
             child: Consumer2<ThemeModel, LocaleModel>(
               builder: (context, themeModel, localeModel, child){
-                return  MaterialApp(
-                  title: AppConfig
-                      .of(context)
-                      .appName,
-                  debugShowCheckedModeBanner: false,
-                  theme: themeModel.themeData(),
-                  darkTheme: themeModel.themeData(platformDarkMode: true),
-                  locale: localeModel.locale,  //当前区域，如果为null则使用系统区域 一般用于语言切换
-                  localizationsDelegates: [   // 本地化委托，用于更改Flutter Widget默认的提示语，按钮text等
-                    S.delegate,
-                  ],
-                  supportedLocales: S.delegate.supportedLocales,  //传入支持的语种数组
-                  //将路由器挂载在启动入口处
-                  onGenerateRoute: RouterConfig.router.generator,
-                  home: SplashPage(),
+                return  RefreshConfiguration(
+                  hideFooterWhenNotFull: true, //列表数据不满一页,不触发加载更多
+                    child: MaterialApp(
+                      title: AppConfig
+                          .of(context)
+                          .appName,
+                      debugShowCheckedModeBanner: false,
+                      //theme darkTheme主要是操作 黑/白模式的切换
+                      theme: themeModel.themeData(),
+                      darkTheme: themeModel.themeData(platformDarkMode: true),
+                      //本地语言国际化操作
+                      locale: localeModel.locale,  //当前区域，如果为null则使用系统区域 一般用于语言切换
+                      localizationsDelegates: [   // 本地化委托，用于更改Flutter Widget默认的提示语，按钮text等
+                        S.delegate,
+                        GlobalMaterialLocalizations.delegate,
+                        GlobalWidgetsLocalizations.delegate,
+                        GlobalCupertinoLocalizations.delegate,
+                        RefreshLocalizations.delegate, //下拉刷新
+                      ],
+                      supportedLocales: S.delegate.supportedLocales,  //传入支持的语种数组
+                      //将路由器挂载在启动入口处
+                      onGenerateRoute: RouterConfig.router.generator,
+                      home: SplashPage(),
+                    )
                 );
               },
             ),

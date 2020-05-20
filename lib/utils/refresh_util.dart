@@ -27,7 +27,6 @@ class RefreshUtils{
 //      infoText: "更新于 %T",
 //    );
     return BallPulseFooter(
-      color: Colors.black,
       enableInfiniteLoad: true,
       enableHapticFeedback: false,
     );

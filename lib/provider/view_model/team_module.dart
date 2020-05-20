@@ -8,12 +8,15 @@ class TeamModule extends ChangeNotifier{
   WorkTeamBeanLevel _workTeamBeanLevel;
 
   bool get hasTeam => _workTeamBeanLevel != null;
-  WorkTeamBeanLevel get () => _workTeamBeanLevel;
+  WorkTeamBeanLevel get () => _workTeamBeanLevel == null ? WorkTeamBeanLevel() : _workTeamBeanLevel;
 
   TeamModule(){
-
-    var team = json.decode(SharedPreferencesDataUtils.getInstace().getString(kTeam));
-    _workTeamBeanLevel = team != null ? WorkTeamBeanLevel.fromJson(team) : null;
+    var teamMap ;
+    var team = SharedPreferencesDataUtils.getInstace().getString(kTeam);
+    if(null != team){
+      teamMap = json.decode(team);
+    }
+    _workTeamBeanLevel = teamMap != null ? WorkTeamBeanLevel.fromJson(teamMap) : null;
 
   }
 

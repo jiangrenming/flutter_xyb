@@ -228,6 +228,15 @@ class S {
     );
   }
 
+  String get myteam {
+    return Intl.message(
+      'MyTeam',
+      name: 'myteam',
+      desc: '',
+      args: [],
+    );
+  }
+
   String get mypaints {
     return Intl.message(
       'MyPaints',
@@ -688,12 +697,12 @@ class S {
   }
 }
 
-class AppLocalizationDelegate extends LocalizationsDelegate<S> {
+class AppLocalizationDelegate extends  /*LocalizationsDelegate<MaterialLocalizations>*/ LocalizationsDelegate<S> {
    AppLocalizationDelegate();
 
   List<Locale> get supportedLocales {
     return  <Locale>[
-      Locale('zh', ''), Locale('en', ''),
+      Locale('zh', 'CH'), Locale('en', 'US'),
     ];
   }
 
@@ -702,6 +711,7 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
   //加载本地化
   @override
   Future<S> load(Locale locale) => S.load(locale);
+
   @override
   bool shouldReload(AppLocalizationDelegate old) => false;
 

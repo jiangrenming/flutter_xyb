@@ -270,11 +270,12 @@ class _LoginPagesState extends State<LoginPages> {
             SharedPreferencesDataUtils.getInstace().setString(Constans.TOKEN, _loginEntity.token);
           //  SharedPreferencesDataUtils.getInstace().setInt(Constans.ROLEID, _loginEntity.roleId);
           //  SharedPreferencesDataUtils.getInstace().setInt(Constans.USERID, _loginEntity.userId);
-            LoginModule().saveUser(_loginEntity);
+           var login =  LoginModule();
+            login.saveUser(_loginEntity);
             //跳转到首页
             var bundle = Bundle();
             bundle.putInt("id", 1);
-           Navigator.pushNamed(context, PageName.home.toString(),arguments: bundle);
+            Navigator.pushNamed(context, PageName.home.toString(),arguments: bundle);
 
           }else if(_loginEntity.authFlag == 0){
             Fluttertoast.showToast(msg: "审核还未通过，请耐心等待");
