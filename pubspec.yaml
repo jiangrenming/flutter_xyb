@@ -65,6 +65,8 @@ dependencies:
   fluro: ^1.6.3
   # State
   provider: 4.0.3
+  #屏幕适配
+  flutter_screenutil: 1.1.0
 
 dev_dependencies:
   flutter_test:
